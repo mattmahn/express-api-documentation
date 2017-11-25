@@ -3,6 +3,7 @@ import express from 'express'
 import path from 'path'
 
 import api from './api'
+import swagger from './swagger'
 
 const app = express()
 
@@ -13,6 +14,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api', api)
+app.use('/swagger', swagger)
 
 app.use((req, res) => {
   res.sendStatus(404)
