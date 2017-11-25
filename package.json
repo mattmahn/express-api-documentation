@@ -5,9 +5,10 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack",
-    "test": "echo 'Error: no test specified' && exit 1",
-    "start": "npm run build && node .dist/index.js"
+    "build": "webpack -d",
+    "prepublishOnly": "webpack -p",
+    "start": "npm run build && node .dist/index.js",
+    "test": "echo 'Error: no test specified' && exit 1"
   },
   "author": "Matthew Mahnke <mmahnke18@gmail.com>",
   "license": "Unlicense",
