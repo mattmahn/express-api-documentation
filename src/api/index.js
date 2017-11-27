@@ -8,4 +8,4 @@ const router = express.Router()
 router.use('/books', books)
 router.use('/users', users)
 
-export default router;
+export default router

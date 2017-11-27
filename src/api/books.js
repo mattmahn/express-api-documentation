@@ -1,25 +1,30 @@
 import express from 'express'
 import uuidv4 from 'uuid/v4'
 
+/**
+ * @swagger
+ * tags:
+ *   name: Books
+ *   description: >
+ *     All about /books
+ */
 const router = express.Router()
 /**
  * @swagger
  * definitions:
- *   book:
+ *   NewBook:
  *     type: object
- *     required: [ id, title, author, published ]
+ *     required: [ author, title, published ]
  *     properties:
- *       title: { type: string }
  *       author: { type: string }
+ *       title: { type: string }
  *       published: { type: integer }
- *       id: { type: string }
- *   newBook:
- *     type: object
- *       required: [ title, author, published ]
- *       properties:
- *         title: { type: string }
- *         author: { type: string }
- *         published: { type: integer }
+ *   Book:
+ *     allOf:
+ *       - $ref: '#/definitions/NewBook'
+ *       - required: [ id ]
+ *       - properties:
+ *           id: { type: string, format: uuid }
  */
 const books = [
   {
@@ -56,25 +61,27 @@ const books = [
 
 /**
  * @swagger
- * /api/books/:
+ * /api/books:
  *   post:
  *     description: Create a new book
+ *     tags: [ Books ]
+ *     parameters:
+ *       - name: New book object
+ *         description: New book object
+ *         in: body
+ *         required: true
+ *         type: object
+ *         schema:
+ *           $ref: '#/definitions/NewBook'
  *     responses:
  *       201:
- *         description: |
+ *         description: >
  *           A new book has been created and can be retrieved at the URL
  *           in the Location header
- *         parameters:
- *           - name: book
- *             description: Book object
- *             required: true
- *             in: body
- *             type: object
- *             schema: { $ref: '#/definitions/newBook' }
  *         headers:
  *           Location:
  *              description: URL of the created book
- *              schema: { type: string }
+ *              type: string
  */
 router.post('/', (req, res) => {
   let newBook = {
@@ -85,6 +92,19 @@ router.post('/', (req, res) => {
   res.location(`${req.baseUrl}/${newBook.id}`).status(201).end()
 })
 
+/**
+ * @swagger
+ * /api/books/all:
+ *   get:
+ *     description: Retrieve all books
+ *     tags: [ Books ]
+ *     produces: application/json
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: array
+ *           items: { $ref: '#/definitions/Book' }
+ */
 router.get('/all', (req, res) => {
   res.send(books)
 })
@@ -93,22 +113,40 @@ router.route('/:id')
   /**
    * @swagger
    * /api/books/{id}:
-   *   parameters:
-   *     - name: id
-   *       in: path
-   *       required: true
-   *       description: the ID of the book
-   *       schema: { type: string }
    *   get:
    *     description: Return the specified book
+   *     tags: [ Books ]
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: the ID of the book
+   *         schema: { type: string, format: uuid }
    *     responses:
    *       200:
    *         schema:
-   *           $ref: '#/definitions/book'
+   *           $ref: '#/definitions/Book'
    */
   .get((req, res) => {
     res.send(books.find(book => book.id === req.params.id))
   })
+  /**
+   * @swagger
+   * /api/books/{id}:
+   *   put:
+   *     description: Update the specified book
+   *     tags: [ Books ]
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: the ID of the book
+   *         schema: { type: string }
+   *     responses:
+   *       204:
+   *         description: >
+   *           The book has been updated.
+   */
   .put((req, res) => {
     let origBook = books.find(book => book.id === req.params.id)
     Object.assign(origBook, req.body, { id: origBook.id })

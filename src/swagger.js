@@ -1,5 +1,4 @@
 import express from 'express'
-import path from 'path'
 import swaggerUI from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
 
@@ -10,21 +9,23 @@ const router = express.Router()
 const swaggerSpec = swaggerJsDoc({
   swaggerDefinition: {
     info: {
-      title: 'Library',  // required
+      title: 'Library', // required
       description: 'Example documentation of Express API',
-      version: npmMeta.version,  // required
+      version: npmMeta.version, // required
       license: {
         name: 'Unlicense',
         url: 'http://unlicense.org/UNLICENSE'
       }
     }
   },
-  apis: [ `./api/*` ]
+  apis: [ // relative to Node start, not this file
+    './src/**/*.js'
+  ]
 })
 
 /**
  * @swagger
- * /api/swagger/spec.json:
+ * /swagger/spec.json:
  *   get:
  *     description: Returns the Swagger specification for this API
  *     produces: application/json
@@ -38,14 +39,11 @@ router.get('/spec.json', (req, res) => {
 
 /**
  * @swagger
- * /api/swagger/docs:
+ * /swagger/docs:
  *   get:
- *     description: Renders the Swagger UI for this API
+ *     description: Renders this Swagger UI for this API
  *     produces: text/html
- *     responses:
- *     200:
- *       description: Yay!
  */
 router.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec))
 
-export default router;
+export default router
